@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authority Tracker - Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
+    }
+    .dashboard-header {
+      background-color: #6c5ce7;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .search-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+    .table-container {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .status-pending {
+      color: #e67e22;
+      font-weight: bold;
+    }
+    .status-approved {
+      color: #27ae60;
+      font-weight: bold;
+    }
+    .status-rejected {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    .refresh-btn {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    .refresh-btn:hover {
+      transform: rotate(180deg);
+    }
+    .table thead th {
+      position: sticky;
+      top: 0;
+    }
+    .table-hover tbody tr:hover {
+      background-color: rgba(108, 92, 231, 0.1);
+    }
+    .badge {
+      font-weight: 500;
+      padding: 5px 10px;
+    }
+    .badge-pending {
+      background-color: #e67e22;
+    }
+    .badge-approved {
+      background-color: #27ae60;
+    }
+    .badge-rejected {
+      background-color: #e74c3c;
+    }
+    .badge-upcoming {
+      background-color: #f39c12;
+    }
+    .badge-urgent {
+      background-color: #e74c3c;
+    }
+    .timeline-cell {
+      min-width: 200px;
+    }
+    .progress {
+      height: 25px;
+    }
+    .progress-bar-planned {
+      background-color: #6c5ce7;
+    }
+    .progress-bar-actual {
+      background-color: #00b894;
+    }
+    
+    /* New header color classes */
+    .header-blue {
+      background-color: #32607e !important;
+      color: white !important;
+    }
+    .header-light-blue {
+      background-color: #4485c5 !important;
+      color: white !important;
+    }
+    .header-teal {
+      background-color: #57818d !important;
+      color: white !important;
+    }
+    .header-green {
+      background-color: #ee650a !important;
+      color: white !important;
+    }
+    .header-green1 {
+      background-color: #a514df !important;
+      color: white !important;
+    }
+    .header-olive {
+      background-color: #9ba620 !important;
+      color: white !important;
+    }
+    .header-pink {
+      background-color: #e79899 !important;
+      color: black !important;
+    }
+    
+    /* Highlight rows */
+    .highlight-urgent {
+      background-color: rgba(231, 76, 60, 0.1) !important;
+      border-left: 4px solid #e74c3c;
+    }
+    .highlight-upcoming {
+      background-color: rgba(243, 156, 18, 0.1) !important;
+      border-left: 4px solid #f39c12;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="dashboard-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="fas fa-table"></i> Authority Tracker - Dashboard</h1>
+        <div>
+          <span id="lastUpdated" class="me-3">Last updated: Just now</span>
+          <i class="fas fa-sync-alt refresh-btn" onclick="fetchData()"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-container">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="input-group mb-3">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Search projects..." onkeyup="filterProjects()">
+          </div>
+        </div>
+        <div class="col-md-2">
+          <select id="statusFilter" class="form-select" onchange="filterProjects()">
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select id="projectFilter" class="form-select" onchange="filterProjects()">
+            <option value="">All Projects</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select id="submissionTypeFilter" class="form-select" onchange="filterProjects()">
+            <option value="">All Submission Types</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select id="authorityFilter" class="form-select" onchange="filterProjects()">
+            <option value="">All Authorities</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th class="header-blue">Project #</th>
+              <th class="header-blue">Project Name</th>
+              <th class="header-green1">Submission Type</th>
+              <th class="header-olive">Authority</th>
+              <th class="header-blue">Request No</th>
+              <th class="header-green">Status</th>
+              <th class="header-light-blue">Planned Submission</th>
+              <th class="header-light-blue">Planned Approval</th>
+              <th class="header-light-blue">Actual Submission</th>
+              <th class="header-light-blue">Actual Approval</th>
+              <th class="header-pink">Upcoming</th>
+              <th class="header-teal">Timeline Progress</th>
+            </tr>
+          </thead>
+          <tbody id="dashboardTable">
+            <!-- Table data will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="legend d-flex justify-content-center gap-4 mt-4">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge badge-pending">Pending</span>
+          <span class="badge badge-approved">Approved</span>
+          <span class="badge badge-rejected">Rejected</span>
+          <span class="badge badge-upcoming">Upcoming</span>
+          <span class="badge badge-urgent">Urgent</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <div class="legend-color" style="width: 20px; height: 20px; background-color: #6c5ce7; border-radius: 4px;"></div>
+          <span>Planned Dates</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <div class="legend-color" style="width: 20px; height: 20px; background-color: #00b894; border-radius: 4px;"></div>
+          <span>Actual Dates</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let allSubmissions = [];
+    
+    // Fetch data on page load
+    document.addEventListener('DOMContentLoaded', fetchData);
+    
+    // Auto-refresh every 30 seconds
+    setInterval(fetchData, 30000);
+
+    async function fetchData() {
+      try {
+        document.querySelector('.refresh-btn').classList.add('fa-spin');
+        const response = await fetch('/get-all-submissions');
+        allSubmissions = await response.json();
+        
+        updateFilters();
+        renderDashboardTable();
+        updateLastUpdated();
+        
+        document.querySelector('.refresh-btn').classList.remove('fa-spin');
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        document.querySelector('.refresh-btn').classList.remove('fa-spin');
+      }
+    }
+
+    function updateFilters() {
+      // Update project filter
+      const projectFilter = document.getElementById('projectFilter');
+      const projects = [...new Set(allSubmissions.map(item => item.projectNumber))];
+      
+      projectFilter.innerHTML = '<option value="">All Projects</option>';
+      projects.forEach(project => {
+        const option = document.createElement('option');
+        option.value = project;
+        option.textContent = project;
+        projectFilter.appendChild(option);
+      });
+      
+      // Update submission type filter
+      const submissionTypeFilter = document.getElementById('submissionTypeFilter');
+      const submissionTypes = [...new Set(allSubmissions.map(item => item.submissionType))];
+      
+      submissionTypeFilter.innerHTML = '<option value="">All Submission Types</option>';
+      submissionTypes.forEach(type => {
+        if (type) {
+          const option = document.createElement('option');
+          option.value = type;
+          option.textContent = type;
+          submissionTypeFilter.appendChild(option);
+        }
+      });
+      
+      // Update authority filter
+      const authorityFilter = document.getElementById('authorityFilter');
+      const authorities = [...new Set(allSubmissions.map(item => item.authority))];
+      
+      authorityFilter.innerHTML = '<option value="">All Authorities</option>';
+      authorities.forEach(authority => {
+        if (authority) {
+          const option = document.createElement('option');
+          option.value = authority;
+          option.textContent = authority;
+          authorityFilter.appendChild(option);
+        }
+      });
+    }
+
+    function filterProjects() {
+      const searchText = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('statusFilter').value;
+      const projectFilter = document.getElementById('projectFilter').value;
+      const submissionTypeFilter = document.getElementById('submissionTypeFilter').value;
+      const authorityFilter = document.getElementById('authorityFilter').value;
+      
+      const filtered = allSubmissions.filter(item => {
+        const matchesSearch = searchText === '' || 
+          item.projectNumber.toLowerCase().includes(searchText) || 
+          item.projectName.toLowerCase().includes(searchText) ||
+          (item.submissionType && item.submissionType.toLowerCase().includes(searchText)) ||
+          (item.authority && item.authority.toLowerCase().includes(searchText));
+        
+        const matchesStatus = statusFilter === '' || item.submissionStatus === statusFilter;
+        const matchesProject = projectFilter === '' || item.projectNumber === projectFilter;
+        const matchesSubmissionType = submissionTypeFilter === '' || item.submissionType === submissionTypeFilter;
+        const matchesAuthority = authorityFilter === '' || item.authority === authorityFilter;
+        
+        return matchesSearch && matchesStatus && matchesProject && matchesSubmissionType && matchesAuthority;
+      });
+      
+      renderDashboardTable(filtered);
+    }
+
+    function renderDashboardTable(data = allSubmissions) {
+      const tableBody = document.getElementById('dashboardTable');
+      tableBody.innerHTML = '';
+      
+      if (data.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="12" class="text-center py-4">No submissions match your filters</td></tr>';
+        return;
+      }
+      
+      data.forEach(item => {
+        const row = document.createElement('tr');
+        
+        // Calculate progress for timeline visualization
+        const plannedStart = item.plannedSubmissionDate ? new Date(item.plannedSubmissionDate) : null;
+        const plannedEnd = item.plannedApprovalDate ? new Date(item.plannedApprovalDate) : null;
+        const actualStart = item.actualSubmissionDate ? new Date(item.actualSubmissionDate) : null;
+        const actualEnd = item.actualApprovalDate ? new Date(item.actualApprovalDate) : null;
+        
+        // Determine status badge
+        let statusBadge = '';
+        if (item.submissionStatus === 'Pending') {
+          statusBadge = '<span class="badge badge-pending">Pending</span>';
+        } else if (item.submissionStatus === 'Approved') {
+          statusBadge = '<span class="badge badge-approved">Approved</span>';
+        } else if (item.submissionStatus === 'Rejected') {
+          statusBadge = '<span class="badge badge-rejected">Rejected</span>';
+        }
+        
+        // Determine upcoming status
+        let upcomingBadge = '';
+        let rowHighlightClass = '';
+        
+        if (item.plannedSubmissionDate && item.submissionStatus === 'Pending') {
+          const plannedDate = new Date(item.plannedSubmissionDate);
+          const today = new Date();
+          const timeDiff = plannedDate.getTime() - today.getTime();
+          const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+          
+          if (daysDiff <= 7 && daysDiff >= 0) {
+            upcomingBadge = '<span class="badge badge-urgent">Urgent (≤7 days)</span>';
+            rowHighlightClass = 'highlight-urgent';
+          } else if (daysDiff <= 15 && daysDiff > 7) {
+            upcomingBadge = '<span class="badge badge-upcoming">Upcoming (≤15 days)</span>';
+            rowHighlightClass = 'highlight-upcoming';
+          }
+        }
+        
+        // Timeline progress visualization
+        let progressHtml = '';
+        if (plannedStart && plannedEnd) {
+          const today = new Date();
+          const totalDuration = plannedEnd - plannedStart;
+          const elapsedDuration = today - plannedStart;
+          let progressPercent = (elapsedDuration / totalDuration) * 100;
+          
+          // Clamp between 0 and 100
+          progressPercent = Math.max(0, Math.min(100, progressPercent));
+          
+          progressHtml = `
+            <div class="progress">
+              <div class="progress-bar progress-bar-planned" role="progressbar" style="width: ${progressPercent}%" 
+                aria-valuenow="${progressPercent}" aria-valuemin="0" aria-valuemax="100">
+                ${Math.round(progressPercent)}%
+              </div>
+            </div>
+            <small class="text-muted">
+              ${formatDate(item.plannedSubmissionDate)} → ${formatDate(item.plannedApprovalDate)}
+            </small>
+          `;
+          
+          if (actualStart && actualEnd) {
+            const actualDuration = actualEnd - actualStart;
+            const actualProgressPercent = (actualDuration / totalDuration) * 100;
+            
+            progressHtml = `
+              <div class="progress">
+                <div class="progress-bar progress-bar-planned" role="progressbar" style="width: 100%" 
+                  aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar progress-bar-actual" role="progressbar" 
+                  style="width: ${actualProgressPercent}%" 
+                  aria-valuenow="${actualProgressPercent}" aria-valuemin="0" aria-valuemax="100">
+                </div>
+              </div>
+              <small class="text-muted">
+                Planned: ${formatDate(item.plannedSubmissionDate)} → ${formatDate(item.plannedApprovalDate)}<br>
+                Actual: ${formatDate(item.actualSubmissionDate)} → ${formatDate(item.actualApprovalDate)}
+              </small>
+            `;
+          }
+        }
+        
+        row.innerHTML = `
+          <td>${item.projectNumber || '-'}</td>
+          <td>${item.projectName || '-'}</td>
+          <td>${item.submissionType || '-'}</td>
+          <td>${item.authority || '-'}</td>
+          <td>${item.requestNo || '-'}</td>
+          <td>${statusBadge}</td>
+          <td>${formatDate(item.plannedSubmissionDate) || '-'}</td>
+          <td>${formatDate(item.plannedApprovalDate) || '-'}</td>
+          <td>${formatDate(item.actualSubmissionDate) || '-'}</td>
+          <td>${formatDate(item.actualApprovalDate) || '-'}</td>
+          <td>${upcomingBadge}</td>
+          <td class="timeline-cell">${progressHtml || 'No timeline data'}</td>
+        `;
+        
+        if (rowHighlightClass) {
+          row.classList.add(rowHighlightClass);
+        }
+        
+        tableBody.appendChild(row);
+      });
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function updateLastUpdated() {
+      const now = new Date();
+      document.getElementById('lastUpdated').textContent = `Last updated: ${now.toLocaleTimeString()}`;
+    }
+  </script>
+</body>
+</html>

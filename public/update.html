@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Update Project Entry</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    /* Include your shared styles here or link to a CSS file */
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background: #f0f4f8;
+    }
+    .form-section {
+      max-width: 2200px;
+      margin: auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #6c5ce7;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      table-layout: fixed; /* Added to prevent cell overflow */
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+      word-wrap: break-word; /* Added to handle long text */
+    }
+    th {
+      background-color: #6c5ce7;
+      color: white;
+      position: sticky;
+      top: 0;
+    }
+    textarea {
+      width: 100%;
+      padding: 6px;
+      resize: vertical; /* Allow vertical resize only */
+      min-height: 60px; /* Set minimum height */
+      box-sizing: border-box; /* Include padding in width */
+    }
+    input[type="text"], 
+    input[type="date"],
+    input[type="number"],
+    input[type="file"] {
+      width: 100%;
+      padding: 6px;
+      box-sizing: border-box; /* Include padding in width */
+    }
+    .radio-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .radio-group label {
+      font-weight: normal;
+      margin-bottom: 0;
+    }
+    .submit-btn {
+      background-color: #00b894;
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      margin-top: 20px;
+      display: block;
+      width: 100%;
+    }
+    .submit-btn:hover {
+      background-color: #019875;
+    }
+    
+    /* Set specific widths for each column to prevent overlapping */
+    #updateTable th:nth-child(1), #updateTable td:nth-child(1) { width: 10%; }
+    #updateTable th:nth-child(2), #updateTable td:nth-child(2) { width: 10%; } /* Submission Type */
+    #updateTable th:nth-child(3), #updateTable td:nth-child(3) { width: 7%; }  /* Request No. */
+    #updateTable th:nth-child(4), #updateTable td:nth-child(4) { width: 7%; }  /* Status */
+    #updateTable th:nth-child(5), #updateTable td:nth-child(5) { width: 8%; } /* Planned Submission */
+    #updateTable th:nth-child(6), #updateTable td:nth-child(6) { width: 8%; } /* Planned Approval */
+    #updateTable th:nth-child(7), #updateTable td:nth-child(7) { width: 8%; } /* Actual Submission */
+    #updateTable th:nth-child(8), #updateTable td:nth-child(8) { width: 8%; } /* Actual Approval */
+    #updateTable th:nth-child(9), #updateTable td:nth-child(9) { width: 12%; } /* Authority Remarks */
+    #updateTable th:nth-child(10), #updateTable td:nth-child(10) { width: 12%; } /* Action Remarks */
+    #updateTable th:nth-child(11), #updateTable td:nth-child(11) { width: 8%; } /* Client Informed */
+    #updateTable th:nth-child(12), #updateTable td:nth-child(12) { width: 8%; } /* Subconsultant */
+    #updateTable th:nth-child(13), #updateTable td:nth-child(13) { width: 8%; } /* Attachment */
+    #updateTable th:nth-child(14), #updateTable td:nth-child(14) { width: 8%; }
+    #updateTable th:nth-child(15), #updateTable td:nth-child(15) { width: 8%; }
+  </style>
+</head>
+<body>
+
+<div class="form-section">
+  <h2><i class="fas fa-edit"></i> Update Project Entries</h2>
+  
+  <div class="filters">
+    <div>
+      <label for="projectNumber">Project Number</label>
+      <select id="projectNumber">
+        <option value="">-- Select Project Number --</option>
+       
+        <!-- Add other options as needed -->
+      </select>
+    </div>
+    <div>
+      <label for="projectName">Project Name</label>
+      <select id="projectName">
+        <option value="">-- Select Project Name --</option>
+        
+        <!-- Add other options as needed -->
+      </select>
+    </div>
+    <div>
+      <label for="authority">Authority</label>
+      <select id="authority">
+        <option value="">-- Select Authority --</option>
+        <!-- Add more -->
+      </select>
+    </div>
+    <div>
+      <label for="emirate">Emirate</label>
+      <select id="emirate">
+        <option value="">-- Select Emirate --</option>
+
+      </select>
+    </div>
+  </div>
+
+  <button class="submit-btn" onclick="fetchData()">Load Entries</button>
+
+  <form id="updateForm" enctype="multipart/form-data">
+    <div style="overflow-x: auto;"> <!-- Added scroll container for mobile -->
+      <table id="updateTable">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Submission Type</th>
+            <th>Request No.</th>
+            <th>Status</th>
+            <th>Planned Submission</th>
+            <th>Planned Approval</th>
+            <th>Actual Submission</th>
+            <th>Actual Approval</th>
+            <th>Authority Remarks</th>
+            <th>Action Remarks</th>
+            <th>Technical Comments</th>
+            <th>Client Informed</th>
+            <th>Subconsultant</th>
+            <th>Attachment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+    <button type="submit" class="submit-btn">Update Submissions</button>
+  </form>
+</div>
+
+<script>
+  async function fetchData() {
+    const projectNumber = document.getElementById('projectNumber').value;
+    if (!projectNumber) {
+      alert("Please select a project number.");
+      return;
+    }
+
+    const res = await fetch(`/get-submissions?projectNumber=${projectNumber}`);
+    const data = await res.json();
+
+    const tbody = document.querySelector("#updateTable tbody");
+    tbody.innerHTML = '';
+
+    data.forEach((item, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+       <td>
+      <select name="Stage_${index}">
+        <option value="">-- Select Stage --</option>
+        <option value="Initial" ${item.Stage === 'Initial' ? 'selected' : ''}>Initial</option>
+        <option value="Concept" ${item.Stage === 'Concept' ? 'selected' : ''}>Concept</option>
+        <option value="Schematic" ${item.Stage === 'Schematic' ? 'selected' : ''}>Schematic</option>
+        <option value="Detailed" ${item.Stage === 'Detailed' ? 'selected' : ''}>Detailed</option>
+        <option value="Construction" ${item.Stage === 'Construction' ? 'selected' : ''}>Construction</option>
+        <option value="Completion" ${item.Stage === 'Completion' ? 'selected' : ''}>Completion</option>
+      </select>
+    </td>
+        <td><input type="text" name="submissionType_${index}" value="${item.submissionType || ''}"></td>
+        <td><input type="text" name="requestNo_${index}" value="${item.requestNo || ''}"></td>
+        <td>
+  <select name="submissionStatus_${index}">
+    <option value="">-- Select --</option>
+    <option value="Open" ${item.submissionStatus === 'Open' ? 'selected' : ''}>Open</option>
+    <option value="Approved with Comments" ${item.submissionStatus === 'Approved with Comments' ? 'selected' : ''}>Approved with Comments</option>
+    <option value="Objection" ${item.submissionStatus === 'Objection' ? 'selected' : ''}>Objection</option>
+    <option value="Consultant For Review" ${item.submissionStatus === 'Consultant For Review' ? 'selected' : ''}>Consultant For Review</option>
+    <option value="Pending approval by Consultant" ${item.submissionStatus === 'Pending approval by Consultant' ? 'selected' : ''}>Pending approval by Consultant</option>
+    <option value="Submitted" ${item.submissionStatus === 'Submitted' ? 'selected' : ''}>Submitted</option>
+    <option value="In Review" ${item.submissionStatus === 'In Review' ? 'selected' : ''}>In Review</option>
+    <option value="Resubmitted" ${item.submissionStatus === 'Resubmitted' ? 'selected' : ''}>Resubmitted</option>
+    <option value="Revision In Progress" ${item.submissionStatus === 'Revision In Progress' ? 'selected' : ''}>Revision In Progress</option>
+    <option value="FFI by Consultant" ${item.submissionStatus === 'FFI by Consultant' ? 'selected' : ''}>FFI by Consultant</option>
+    <option value="RFI by EDC Admin" ${item.submissionStatus === 'RFI by EDC Admin' ? 'selected' : ''}>RFI by EDC Admin</option>
+    <option value="Pending for Resubmission" ${item.submissionStatus === 'Pending for Resubmission' ? 'selected' : ''}>Pending for Resubmission</option>
+    <option value="Approved" ${item.submissionStatus === 'Approved' ? 'selected' : ''}>Approved</option>
+  </select>
+</td>
+        <td><input type="date" name="plannedSubmissionDate_${index}" value="${formatDate(item.plannedSubmissionDate)}"></td>
+        <td><input type="date" name="plannedApprovalDate_${index}" value="${formatDate(item.plannedApprovalDate)}"></td>
+        <td><input type="date" name="actualSubmissionDate_${index}" value="${formatDate(item.actualSubmissionDate)}"></td>
+        <td><input type="date" name="actualApprovalDate_${index}" value="${formatDate(item.actualApprovalDate)}"></td>
+        <td><textarea name="authorityRemarks_${index}">${item.authorityRemarks || ''}</textarea></td>
+        <td><textarea name="actionRemark_${index}">${item.actionRemark || ''}</textarea></td>
+        <td><textarea name="technicalComments_${index}">${item.technicalComments || ''}</textarea></td>
+        <td>
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="clientInformed_${index}" value="Yes" ${item.clientInformed === 'Yes' ? 'checked' : ''}> Yes
+            </label>
+            <label>
+              <input type="radio" name="clientInformed_${index}" value="No" ${item.clientInformed === 'No' ? 'checked' : ''}> No
+            </label>
+          </div>
+        </td>
+        <td><input type="text" name="subconsultant_${index}" value="${item.subconsultant || ''}"></td>
+        <td>
+          <input type="file" name="attachment_${index}" id="attachment_${index}">
+          ${item.attachment ? `<span>Current: ${item.attachment}</span>` : ''}
+        </td>
+         <input type="hidden" name="submissions[${index}].id" value="${item.id}">
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  function formatDate(date) {
+    if (!date) return '';
+    return new Date(date).toISOString().split('T')[0];
+  }
+
+  document.getElementById("updateForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  
+  try {
+      const formData = new FormData();
+      
+      // Add basic filter data
+      formData.append('projectNumber', document.getElementById('projectNumber').value);
+      formData.append('authority', document.getElementById('authority').value);
+      formData.append('emirate', document.getElementById('emirate').value);
+
+      // Process each update row
+      const rows = document.querySelectorAll("#updateTable tbody tr");
+      rows.forEach((row, index) => {
+          // Get all input values from the row
+          const submissionType = row.querySelector('[name^="submissionType_"]').value;
+          const requestNo = row.querySelector('[name^="requestNo_"]').value;
+          const Stage = row.querySelector('[name^="Stage_"]').value;
+          formData.append(`submissions[${index}].Stage`, Stage);
+          formData.append(`submissions[${index}].submissionType`, submissionType);
+          formData.append(`submissions[${index}].requestNo`, requestNo);
+          formData.append(`submissions[${index}].submissionStatus`, row.querySelector('[name^="submissionStatus_"]').value);
+          formData.append(`submissions[${index}].plannedSubmissionDate`, row.querySelector('[name^="plannedSubmissionDate_"]').value);
+          formData.append(`submissions[${index}].plannedApprovalDate`, row.querySelector('[name^="plannedApprovalDate_"]').value);
+          formData.append(`submissions[${index}].actualSubmissionDate`, row.querySelector('[name^="actualSubmissionDate_"]').value);
+          formData.append(`submissions[${index}].actualApprovalDate`, row.querySelector('[name^="actualApprovalDate_"]').value);
+          formData.append(`submissions[${index}].authorityRemarks`, row.querySelector('[name^="authorityRemarks_"]').value);
+          formData.append(`submissions[${index}].actionRemark`, row.querySelector('[name^="actionRemark_"]').value);
+          formData.append(`submissions[${index}].technicalComments`, row.querySelector('[name^="technicalComments_"]').value);
+          // Handle radio buttons
+          const clientInformed = row.querySelector('[name^="clientInformed_"]:checked');
+          formData.append(`submissions[${index}].clientInformed`, clientInformed ? clientInformed.value : 'No');
+          
+          formData.append(`submissions[${index}].subConsultant`, row.querySelector('[name^="subconsultant_"]').value);
+
+          // Handle file uploads
+          const fileInput = row.querySelector('input[type="file"]');
+          if (fileInput && fileInput.files.length > 0) {
+              formData.append(`submissions[${index}].attachment`, fileInput.files[0]);
+          }
+      });
+
+      // Show loading state
+      const submitBtn = document.querySelector('.submit-btn[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+      const response = await fetch('/update', {
+          method: 'POST',
+          body: formData
+      });
+
+      if (!response.ok) {
+          throw new Error(`Server returned ${response.status}`);
+      }
+
+      const result = await response.json();
+      alert(`Success! Updated ${result.updated} records.`);
+      fetchData(); // Refresh the table data
+
+  } catch (error) {
+      console.error("Update error:", error);
+      alert(`Update failed: ${error.message}`);
+  } finally {
+      // Reset button state
+      const submitBtn = document.querySelector('.submit-btn[type="submit"]');
+      if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Update Submissions';
+      }
+  }
+});
+  // Replace the populateDropdowns() function with this:
+async function populateDropdowns() {
+  try {
+    // Fetch projects from A_Project table
+    const projectsResponse = await fetch('/get-projects');
+    const projects = await projectsResponse.json();
+
+    // Get dropdown elements
+    const projectNumberDropdown = document.getElementById('projectNumber');
+    const projectNameDropdown = document.getElementById('projectName');
+    const emirateDropdown = document.getElementById('emirate');
+    const authorityDropdown = document.getElementById('authority');
+
+    // Populate Project Numbers and Names from A_Project
+    projects.forEach(project => {
+      // Add to project number dropdown
+      const numberOption = document.createElement('option');
+      numberOption.value = project.projectNumber;
+      numberOption.textContent = project.projectNumber;
+      projectNumberDropdown.appendChild(numberOption);
+      
+      // Add to project name dropdown
+      const nameOption = document.createElement('option');
+      nameOption.value = project.projectName;
+      nameOption.textContent = project.projectName;
+      projectNameDropdown.appendChild(nameOption);
+    });
+
+    // Set up the mapping between project numbers and names
+    projectNumberDropdown.addEventListener('change', function() {
+      const selectedProject = projects.find(p => p.projectNumber === this.value);
+      if (selectedProject) {
+        projectNameDropdown.value = selectedProject.projectName;
+      }
+    });
+
+    projectNameDropdown.addEventListener('change', function() {
+      const selectedProject = projects.find(p => p.projectName === this.value);
+      if (selectedProject) {
+        projectNumberDropdown.value = selectedProject.projectNumber;
+      }
+    });
+
+    // Fetch and populate other dropdowns (emirates, authorities)
+    const response = await fetch('/get-dropdown-values');
+    const data = await response.json();
+
+    // Populate Emirates
+    data.emirates.forEach(emirate => {
+      const option = document.createElement('option');
+      option.value = emirate;
+      option.textContent = emirate;
+      emirateDropdown.appendChild(option);
+    });
+
+    // Populate Authorities
+    data.authorities.forEach(authority => {
+      const option = document.createElement('option');
+      option.value = authority;
+      option.textContent = authority;
+      authorityDropdown.appendChild(option);
+    });
+
+  } catch (error) {
+    console.error('Error populating dropdowns:', error);
+    alert('Failed to load dropdown options from server');
+  }
+}
+
+  // Call this function when page loads
+  document.addEventListener('DOMContentLoaded', populateDropdowns);
+</script>
+
+</body>
+</html>

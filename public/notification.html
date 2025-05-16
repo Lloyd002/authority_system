@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send Notification</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --secondary: #a29bfe;
+      --accent: #fd79a8;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --success: #00b894;
+      --danger: #d63031;
+      --info: #0984e3;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 800px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .form-header {
+      background: white;
+      color: black;
+      padding: 20px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: center;
+    }
+
+    .header-logo {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      width: 60px;
+      height: 60px;
+    }
+
+    .header-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .form-header h2 {
+      font-size: 28px;
+      margin-bottom: 5px;
+      color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .form-header p {
+      color: black;
+      font-size: 16px;
+    }
+
+    .form-body {
+      padding: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--dark);
+      font-size: 14px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+      background-color: #f8f9fa;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+      outline: none;
+      background-color: white;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(to right, var(--info), #74b9ff);
+      color: white;
+      padding: 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-list {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .user-item {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .user-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .user-item.selected {
+      background-color: #e3f2fd;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="form-header">
+      <div class="header-logo">
+        <img src="A.jpg" alt="Archcorp Logo" width="60" height="60" style="width: 182%;">
+      </div>
+      <h2><i class="fas fa-bell"></i> Send Notification</h2>
+      <p>Send notifications to team members about this project</p>
+    </div>
+
+    <form action="/send-notification" method="post" class="form-body" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="projectNumber">Project Number</label>
+        <select id="projectNumber" name="projectNumber" required>
+          <option value="">-- Loading projects... --</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="projectName">Project Name</label>
+        <select id="projectName" name="projectName" required>
+          <option value="">-- Loading projects... --</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Notification Type</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="typeReminder" name="notificationType" value="reminder" checked>
+            <label for="typeReminder">Email Message</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="typeUpdate" name="notificationType" value="update">
+            <label for="typeUpdate">Whats App Message</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="recipients">Select Recipients</label>
+        <div class="user-list" id="recipientList">
+          <!-- Will be populated by JavaScript -->
+          <div class="user-item">Loading users...</div>
+        </div>
+        <input type="hidden" name="recipients" id="selectedRecipients">
+      </div>
+
+      <div class="form-group">
+        <label for="message">Notification Message</label>
+        <textarea id="message" name="message" required placeholder="Enter your notification message here..."></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <i class="fas fa-paper-plane"></i> Send Notification
+      </button>
+    </form>
+  </div>
+
+ <script>
+  async function initializeNotificationForm() {
+    // Form submit
+    document.querySelector('form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const data = {
+        projectNumber: formData.get('projectNumber'),
+        projectName: formData.get('projectName'),
+        notificationType: formData.get('notificationType'),
+        message: formData.get('message'),
+        recipients: formData.get('recipients')
+      };
+
+      try {
+        const response = await fetch('/send-notification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          throw new Error(`Server returned ${response.status}: ${text}`);
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert('Notification sent successfully!');
+          this.reset();
+        } else {
+          alert(`Error: ${result.message}`);
+        }
+      } catch (error) {
+        console.error('Full error:', error);
+        alert(`Failed to send notification: ${error.message}`);
+      }
+    });
+
+    // Load projects
+    async function loadProjects() {
+      try {
+        const response = await fetch('/get-projects');
+        const projects = await response.json();
+        const projectNumberSelect = document.getElementById('projectNumber');
+        const projectNameSelect = document.getElementById('projectName');
+
+        projectNumberSelect.innerHTML = '<option value="">-- Select Project Number --</option>';
+        projectNameSelect.innerHTML = '<option value="">-- Select Project Name --</option>';
+
+        projects.forEach(project => {
+          const option1 = document.createElement('option');
+          option1.value = project.projectNumber;
+          option1.textContent = project.projectNumber;
+          projectNumberSelect.appendChild(option1);
+
+          const option2 = document.createElement('option');
+          option2.value = project.projectName;
+          option2.textContent = project.projectName;
+          projectNameSelect.appendChild(option2);
+        });
+
+        // Store projects for syncing
+        window._notificationProjects = projects;
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        alert('Failed to load projects. Please try again later.');
+      }
+    }
+
+    // Load users
+    async function loadUsers() {
+      try {
+        const response = await fetch('/get-users');
+        const users = await response.json();
+        const recipientList = document.getElementById('recipientList');
+
+        recipientList.innerHTML = '';
+        users.forEach(user => {
+          const userItem = document.createElement('div');
+          userItem.className = 'user-item';
+          userItem.innerHTML = `
+            <input type="checkbox" id="user_${user.id}" value="${user.id}" style="margin-right: 10px;">
+            <label for="user_${user.id}">${user.name} (${user.role})</label>
+          `;
+          userItem.querySelector('input').addEventListener('change', updateSelectedRecipients);
+          recipientList.appendChild(userItem);
+        });
+      } catch (error) {
+        console.error('Error loading users:', error);
+        document.getElementById('recipientList').innerHTML = '<div class="user-item">Error loading users</div>';
+      }
+    }
+
+    function updateSelectedRecipients() {
+      const checkboxes = document.querySelectorAll('#recipientList input[type="checkbox"]:checked');
+      const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+      document.getElementById('selectedRecipients').value = selectedIds.join(',');
+    }
+
+    function setupProjectDropdowns() {
+      const projectNumberSelect = document.getElementById('projectNumber');
+      const projectNameSelect = document.getElementById('projectName');
+      const projects = window._notificationProjects || [];
+
+      projectNumberSelect.addEventListener('change', function() {
+        const match = projects.find(p => p.projectNumber === this.value);
+        if (match) projectNameSelect.value = match.projectName;
+      });
+
+      projectNameSelect.addEventListener('change', function() {
+        const match = projects.find(p => p.projectName === this.value);
+        if (match) projectNumberSelect.value = match.projectNumber;
+      });
+    }
+
+    // Load data and apply URL parameters
+    await loadProjects();
+    await loadUsers();
+    setupProjectDropdowns();
+
+    const params = new URLSearchParams(window.location.search);
+    const pNum = params.get('projectNumber');
+    const pName = params.get('projectName');
+    if (pNum) document.getElementById('projectNumber').value = pNum;
+    if (pName) document.getElementById('projectName').value = pName;
+  }
+  initializeNotificationForm();
+</script>
+
+</body>
+</html>

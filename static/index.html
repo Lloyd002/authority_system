@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Authority Tracker Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; max-width: 600px; margin: auto; }
+    textarea, input[type="text"] { width: 100%; padding: 10px; margin-top: 10px; }
+    button { padding: 10px 15px; margin-top: 10px; }
+    .chat { margin-top: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+
+<h2>🔹 Authority Tracker Chatbot</h2>
+<p>Ask a question like: <strong>"Dubai Municipality submissions"</strong></p>
+
+<input type="text" id="message" placeholder="Type your question here...">
+<button onclick="sendMessage()">Send</button>
+
+<div class="chat" id="chatbox"></div>
+
+<script>
+  async function sendMessage() {
+    const message = document.getElementById("message").value;
+    const chatbox = document.getElementById("chatbox");
+
+    chatbox.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+
+    const response = await fetch("http://localhost:5000/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await response.json();
+
+    if (data.response) {
+      chatbox.innerHTML += `<p><strong>AI:</strong> ${data.response}</p>`;
+    } else {
+      chatbox.innerHTML += `<p><strong>Error:</strong> ${data.error}</p>`;
+    }
+
+    document.getElementById("message").value = "";
+  }
+</script>
+
+</body>
+</html>

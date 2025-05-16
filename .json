@@ -1,0 +1,6 @@
+{
+    "ConnectionStrings": {
+  "DefaultConnection": "Server=192.168.6.15;Database=AuthorityTracker;User ID=praveena;Password=Test@1234;"
+}
+  }
+  
